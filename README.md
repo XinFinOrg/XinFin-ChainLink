@@ -131,3 +131,6 @@ The first job spec is for connecting the external initiator and can be found [he
 }
 
 Gitbook Link - https://lokeshwaran-a82.gitbook.io/xinfin/step-by-step-guide-complete-flow-xinfin-network-+-chainlink-authenticated-api-data-execution
+
+
+****** TESTING IN PROGRESS ***** Please see above link to get complete insight
