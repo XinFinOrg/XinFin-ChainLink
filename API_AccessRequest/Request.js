@@ -11,8 +11,8 @@ async function main() {
   const deployed_private_key = process.env.PRIVATE_KEY;
 
   //Jobid to bridge - this can be fetched from GUI - http://localhost:6688
-  const _oracle = "0x18facef585ce8e60c86b8c0f7e19c2cb3ea8e736";
-  const jobId = xdc3.utils.toHex("3eea22a63cc142b5a6a1673fcfcb482e");
+  const _oracle = process.env.ORACLE_CONTRACT;
+  const jobId = xdc3.utils.toHex(process.env.JOB_ID);
 
   console.log("jobId",jobId);
 
@@ -21,7 +21,7 @@ async function main() {
 
   //requestor ABI & Contract address to pass here
   const requestorABI = require("./ABI/RequestAbi.json");
-  const requestorcontractAddr = "xdccd0e6a033218df7ec906cbf3d48cf99fd19f33f5";
+  const requestorcontractAddr = process.env.REQUESTOR_CONTRACT;
   //xdccd0e6a033218df7ec906cbf3d48cf99fd19f33f5
 
   //Defining requestContract
@@ -36,7 +36,7 @@ async function main() {
     nonce: nonce,
     data: requestContract.methods.createRequest(_oracle, jobId, coin, market).encodeABI(),
     gasPrice: gasPrice ,
-    to: "xdccd0e6a033218df7ec906cbf3d48cf99fd19f33f5",   // Requestor contract address
+    to: process.env.REQUESTOR_CONTRACT,   // Requestor contract address
     from: account.address,
   };
 

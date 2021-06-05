@@ -12,7 +12,7 @@ async function main() {
 
   //Oracle ABI & Contract address to pass here
   const oracleABI = require("./ABI/OracleAbi.json");
-  const oraclecontractAddr = "xdc18facef585ce8e60c86b8c0f7e19c2cb3ea8e736";
+  const oraclecontractAddr = process.env.ORACLE_CONTRACT;
   //xdc18facef585ce8e60c86b8c0f7e19c2cb3ea8e736
 
 
@@ -29,12 +29,14 @@ async function main() {
     nonce: nonce,
     data: oraclecontract.methods.setFulfillmentPermission(chinlinknode, true).encodeABI(),
     gasPrice: gasPrice,
-    to: "xdc18facef585ce8e60c86b8c0f7e19c2cb3ea8e736",   // Oracle contract address
+    to: process.env.ORACLE_CONTRACT,   // Oracle contract address
     from: account.address,
   };
 
   const gasLimit = await xdc3.eth.estimateGas(tx);
   tx["gasLimit"] = gasLimit;
+
+  console.log("gasLimit",gasLimit)
 
   const signed = await xdc3.eth.accounts.signTransaction(
     tx,
