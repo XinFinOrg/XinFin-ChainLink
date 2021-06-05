@@ -5,7 +5,6 @@ Demonstrating how to connect Xinfin Network and Chainlink together, and thus bri
 There are two main implications:
 
 1. The connection of Chainlink to Xinfin Network allows for the growth of all types of oracles on Xinfin Network to power exchanges, other oracle needs, and bridge Web2 technology with Web3.
-1. The specific implementation of using SMS to interact with the blockchain has the potential for opening access to Web3 for users without good internet connection in areas across the world. Or simply, text-based interactions with smart contracts for simplicity and convenience.
 
 ## Setup Steps
 
@@ -83,7 +82,7 @@ The external initiator can be started up using:
 ./external-initiator "{\"name\":\"xinfin-testnet\",\"type\":\"ethererum\",\"url\":\"https://rpc.apothem.network\"}" --chainlinkurl "http://localhost:6688/"
 ```
 
-Where the url can be changed to the respective endpoint. In this case, it is pointed at the public Conflux Network testnet endpoint. For reliability purposes, do not use this in production; it is much more reliable to connect to a non-public endpoint.
+Where the url can be changed to the respective endpoint. In this case, it is pointed at the public Xinfin Network testnet endpoint. For reliability purposes, do not use this in production; it is much more reliable to connect to a non-public endpoint.
 
 ### Creating a Bridge for an External Adapter
 
@@ -130,3 +129,5 @@ The first job spec is for connecting the external initiator and can be found [he
     {"type": "xdcSendTx"}
   ]
 }
+
+Gitbook Link - https://lokeshwaran-a82.gitbook.io/xinfin/step-by-step-guide-complete-flow-xinfin-network-+-chainlink-authenticated-api-data-execution

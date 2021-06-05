@@ -951,8 +951,6 @@ contract ChainlinkClient {
   }
 }
 
-
-
 /**
  * @title MyContract is an example contract which requests data from
  * the Chainlink network
@@ -1008,7 +1006,6 @@ contract RequestClient is ChainlinkClient, Ownable {
         returns (bytes32 requestId)
     {
         // create request instance
-        //Chainlink.Request memory req = buildChainlinkRequest(_jobId, this, this.fulfill.selector);
         Chainlink.Request memory req = buildChainlinkRequest(
             _jobId,
             this,
@@ -1025,30 +1022,6 @@ contract RequestClient is ChainlinkClient, Ownable {
         requestId = sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
         // emit event message
         emit requestCreated(msg.sender, _jobId, requestId);
-    }
-
-    function fulfillEthereumPrice(bytes32 _requestId, uint256 _price)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
-        emit RequestEthereumPriceFulfilled(_requestId, _price);
-        currentPrice = _price;
-    }
-
-    function fulfillEwtPrice(bytes32 _requestId, uint256 _price)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
-        emit RequestEwtPriceFulfilled(_requestId, _price);
-        currentEwtPrice = _price;
-    }
-
-    function fulfillEthereumChange(bytes32 _requestId, int256 _change)
-        public
-        recordChainlinkFulfillment(_requestId)
-    {
-        emit RequestEthereumChangeFulfilled(_requestId, _change);
-        changeDay = _change;
     }
 
     function fulfillEthereumLastMarket(bytes32 _requestId, bytes32 _market)
