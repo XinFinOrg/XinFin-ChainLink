@@ -958,47 +958,68 @@ contract ChainlinkClient {
  * local test networks
  */
 contract RequestClient is ChainlinkClient, Ownable {
+    uint256 public volume;
     address private oracle;
     bytes32 private jobId;
     uint256 private fee;
     
-    uint256 public volume;
-
-
+    /**
+     * Network: Kovan
+     * Chainlink - 0x2f90A6D021db21e1B2A077c5a37B3C7E75D15b7e
+     * Chainlink - 29fa9aa13bf1468788b7cc4a500a45b8
+     * Fee: 0.1 LINK
+     */
     constructor(address _link) public {
         setChainlinkToken(_link);
         oracle = 0xf0e3f1ca4fc9aa9ec4355287a67ea88f42f52345;
-        jobId = "4316d4a103bc45deb01d40cacaabbfcb";
+        jobId = "1106f374b9fe421ab9fc7708fd2defc7";
         fee = 0.1 * 10 ** 18; // 0.1 LINK
     }
     event requestCreated(address indexed requester,bytes32 indexed jobId, bytes32 indexed requestId);
     
-    event requestFulfilled(bytes32 indexed _requestId, uint256 _data);
-
-    
-    /*
-     * Create a request and send it to default Oracle contract
-    */
-      function createRequest(
-        string _coin,
-        string _market
-      )
-        public
-        onlyOwner
-        returns (bytes32 requestId)
-      {
-        // create request instance
-        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
-        req.add("endpoint", "price");
-        req.add("fsym", _coin);
-        req.add("tsyms", _market);
-        req.add("copyPath", _market);
+    /**
+     * Create a Chainlink request to retrieve API response, find the target
+     * data, then multiply by 1000000000000000000 (to remove decimal places from data).
+     ************************************************************************************
+     *                                    STOP!                                         * 
+     *         THIS FUNCTION WILL FAIL IF THIS CONTRACT DOES NOT OWN LINK               *
+     *         ----------------------------------------------------------               *
+     *         Learn how to obtain testnet LINK and fund this contract:                 *
+     *         ------- https://docs.chain.link/docs/acquire-link --------               *
+     *         ---- https://docs.chain.link/docs/fund-your-contract -----               *
+     *                                                                                  *
+     ************************************************************************************/
+    function requestVolumeData() public returns (bytes32 requestId) 
+    {
+        Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
+        
+        // Set the URL to perform the GET request on
+        request.add("get", "https://min-api.cryptocompare.com/data/pricemultifull?fsyms=ETH&tsyms=USD");
+        
+        // Set the path to find the desired data in the API response, where the response format is:
+        // {"RAW":
+        //      {"ETH":
+        //          {"USD":
+        //              {
+        //                  ...,
+        //                  "VOLUME24HOUR": xxx.xxx,
+        //                  ...
+        //              }
+        //          }
+        //      }
+        //  }
+        request.add("path", "RAW.ETH.USD.VOLUME24HOUR");
+        
+        // Multiply the result by 1000000000000000000 to remove decimals
         int timesAmount = 10**18;
-        req.addInt("times", timesAmount);
-        // send request & payment to Chainlink oracle
-        requestId = sendChainlinkRequestTo(oracle, req, fee);
-        // emit event message
+        request.addInt("times", timesAmount);
+        requestId = sendChainlinkRequestTo(oracle, request, fee);
+         // emit event message
         emit requestCreated(msg.sender, jobId, requestId);
+        
+        return requestId;
+        // Sends the request
+        // return sendChainlinkRequestTo(oracle, request, fee);
     }
     
     /**
@@ -1007,6 +1028,16 @@ contract RequestClient is ChainlinkClient, Ownable {
     function fulfill(bytes32 _requestId, uint256 _volume) public recordChainlinkFulfillment(_requestId)
     {
         volume = _volume;
-        emit requestFulfilled(_requestId, volume);
+    }
+    
+    /**
+     * Withdraw LINK from this contract
+     * 
+     * NOTE: DO NOT USE THIS IN PRODUCTION AS IT CAN BE CALLED BY ANY ADDRESS.
+     * THIS IS PURELY FOR EXAMPLE PURPOSES ONLY.
+     */
+    function withdrawLink() external {
+        LinkTokenInterface linkToken = LinkTokenInterface(chainlinkTokenAddress());
+        require(linkToken.transfer(msg.sender, linkToken.balanceOf(address(this))), "Unable to transfer");
     }
 }
