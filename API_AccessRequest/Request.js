@@ -50,7 +50,7 @@ async function main() {
     from: account.address,
   };
 
-  console.log("Transaction", tx);
+  // console.log("Transaction", tx);
 
   const gasLimit = await xdc3.eth.estimateGas(tx);
   console.log("gasLimit", gasLimit); 
@@ -70,17 +70,17 @@ async function main() {
   // console.log("web3.hexToString()",xdc3.eth.toString(request.data))
   // const data = request.data.toString("utf-8");
 
-  let data = 0
-  let timer = 0
-  while (data == 0) {
-    data = await requestContract.methods.getRequestResult(request.id)
-    if (data != 0) {
-      console.log("Request is fulfilled. data := " + data)
-    }
-    sleep(1000);
-    timer = timer + 1;
-    console.log("waiting for " + timer + " second")
-  }
+  // let data = 0
+  // let timer = 0
+  // while (data == 0) {
+  //   data = await requestContract.methods.getRequestResult(request.id)
+  //   if (data != 0) {
+  //     console.log("Request is fulfilled. data := " + data)
+  //   }
+  //   sleep(1000);
+  //   timer = timer + 1;
+  //   console.log("waiting for " + timer + " second")
+  // }
 
 }
 
