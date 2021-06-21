@@ -3,25 +3,24 @@
     "constant": false,
     "inputs": [
       {
-        "name": "_jobId",
-        "type": "string"
-      },
-      {
-        "name": "_coin",
-        "type": "string"
-      },
-      {
-        "name": "_market",
-        "type": "string"
-      }
-    ],
-    "name": "createRequest",
-    "outputs": [
-      {
-        "name": "requestId",
+        "name": "_requestId",
         "type": "bytes32"
+      },
+      {
+        "name": "_payment",
+        "type": "uint256"
+      },
+      {
+        "name": "_callbackFunctionId",
+        "type": "bytes4"
+      },
+      {
+        "name": "_expiration",
+        "type": "uint256"
       }
     ],
+    "name": "cancelRequest",
+    "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
@@ -34,11 +33,47 @@
         "type": "bytes32"
       },
       {
-        "name": "_volume",
+        "name": "_change",
+        "type": "int256"
+      }
+    ],
+    "name": "fulfillEthereumChange",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_requestId",
+        "type": "bytes32"
+      },
+      {
+        "name": "_market",
+        "type": "bytes32"
+      }
+    ],
+    "name": "fulfillEthereumLastMarket",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_requestId",
+        "type": "bytes32"
+      },
+      {
+        "name": "_price",
         "type": "uint256"
       }
     ],
-    "name": "fulfill",
+    "name": "fulfillEthereumPrice",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -57,11 +92,82 @@
     "constant": false,
     "inputs": [
       {
+        "name": "_oracle",
+        "type": "address"
+      },
+      {
+        "name": "_jobId",
+        "type": "string"
+      }
+    ],
+    "name": "requestEthereumChange",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_oracle",
+        "type": "address"
+      },
+      {
+        "name": "_jobId",
+        "type": "string"
+      }
+    ],
+    "name": "requestEthereumLastMarket",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_oracle",
+        "type": "address"
+      },
+      {
+        "name": "_jobId",
+        "type": "string"
+      },
+      {
+        "name": "_coin",
+        "type": "string"
+      },
+      {
+        "name": "_market",
+        "type": "string"
+      }
+    ],
+    "name": "requestEthereumPrice",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "name": "_newOwner",
         "type": "address"
       }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "withdrawLink",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -83,21 +189,16 @@
     "inputs": [
       {
         "indexed": true,
-        "name": "requester",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "name": "jobId",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
         "name": "requestId",
         "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "name": "price",
+        "type": "uint256"
       }
     ],
-    "name": "requestCreated",
+    "name": "RequestEthereumPriceFulfilled",
     "type": "event"
   },
   {
@@ -105,16 +206,33 @@
     "inputs": [
       {
         "indexed": true,
-        "name": "_requestId",
+        "name": "requestId",
         "type": "bytes32"
       },
       {
-        "indexed": false,
-        "name": "_data",
-        "type": "uint256"
+        "indexed": true,
+        "name": "change",
+        "type": "int256"
       }
     ],
-    "name": "requestFulfilled",
+    "name": "RequestEthereumChangeFulfilled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "requestId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "name": "market",
+        "type": "bytes32"
+      }
+    ],
+    "name": "RequestEthereumLastMarket",
     "type": "event"
   },
   {
@@ -185,7 +303,35 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "owner",
+    "name": "changeDay",
+    "outputs": [
+      {
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "currentPrice",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getChainlinkToken",
     "outputs": [
       {
         "name": "",
@@ -199,11 +345,25 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "volume",
+    "name": "lastMarket",
     "outputs": [
       {
         "name": "",
-        "type": "uint256"
+        "type": "bytes32"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
       }
     ],
     "payable": false,

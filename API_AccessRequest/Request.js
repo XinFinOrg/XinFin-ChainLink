@@ -44,8 +44,8 @@ async function main() {
 
   const tx = {
     nonce: nonce,
-    data: requestContract.methods.createRequest(jobId, coin, market).encodeABI(),
-    gasPrice: '50000',
+    data: requestContract.methods.requestEthereumPrice(process.env.ORACLE_CONTRACT,jobId, coin, market).encodeABI(),
+    gasPrice: gasPrice,
     to: process.env.REQUESTOR_CONTRACT,   // Requestor contract address
     from: account.address,
   };
@@ -67,8 +67,8 @@ async function main() {
     .once("receipt", console.log);
   request = h.decodeRunRequest(txt.logs[3]);
   console.log("request has been sent. request id :=" + request.id, request.data.toString("utf-8"))
-  // console.log("web3.hexToString()",xdc3.eth.toString(request.data))
-  // const data = request.data.toString("utf-8");
+  console.log("web3.hexToString()",xdc3.eth.toString(request.data))
+  const data = request.data.toString("utf-8");
 
   // let data = 0
   // let timer = 0

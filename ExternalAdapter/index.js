@@ -49,8 +49,10 @@ let handle = (data, callback) => {
             });
         } else {
             let resp = body;
+            console.log("resp value is",resp)
             if (data.endpoint === "price")
-                resp.result = resp[data.tsyms];
+                resp.result = resp[data.tsyms].toString();
+                resp.USD    = resp[data.tsyms].toString();
 
             callback(response.statusCode, {
                 jobRunID: data.id,
@@ -73,8 +75,16 @@ exports.handler = (req, res) => {
     };
 
     handle(data, (statusCode, responseData) => {
-        console.log("responseData",responseData,statusCode)
-        res.status(statusCode).send(responseData);
+        obj = {"jobRunID":responseData.jobRunID,
+               "data":{
+                   "USD":responseData.data.USD.toString(),
+                   "result":responseData.data.result.toString()
+               },
+               "result":responseData.data.result.toString(),
+               "statusCode":statusCode
+            };
+        console.log("Obj value is",obj)
+        res.status(statusCode).send(obj);
     });
 };
 
