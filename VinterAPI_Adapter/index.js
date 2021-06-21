@@ -28,7 +28,7 @@ const createRequest = (input, callback) => {
 
   // if (process.env.API_KEY) {
     config.headers = {
-      Authorization: 'zleorhzf.8pXiPL1ZY5FPbaWeE9WeYIY9mudGPHna'
+      Authorization: process.env.API_KEY
     }
 
   // }
