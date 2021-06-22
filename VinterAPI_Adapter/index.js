@@ -1,4 +1,5 @@
 const { Requester, Validator } = require('@chainlink/external-adapter')
+require("dotenv").config();
 
 const customError = (data) => {
   if (data.Response === 'Error') return true
@@ -6,16 +7,16 @@ const customError = (data) => {
 }
 
 const customParams = {
-  symbol: ['symbol']
+  symbol: ['symbol'],
+  endpoint:['endpoint']
 }
 
 const createRequest = (input, callback) => {
-  console.log("invput ",input)
-  const validator = new Validator(callback, input, customParams)
+  const validator = new Validator(input, customParams)
   const jobRunID = validator.validated.id
-  const endpoint = validator.validated.endpoint || 'single_assets_daily'
-  const url = `https://www.vinterapi.com/api/v2/${endpoint}`
-  const symbol = 'xdc-usd-p-d'
+  const endpoint = validator.validated.data.endpoint 
+  const url      = `https://www.vinterapi.com/api/v2/${endpoint}`
+  const symbol   =  validator.validated.data.symbol
 
   const params = {
     symbol
@@ -26,18 +27,16 @@ const createRequest = (input, callback) => {
     params
   }
 
-  // if (process.env.API_KEY) {
+  if (process.env.API_KEY) {
     config.headers = {
       Authorization: process.env.API_KEY
     }
-
-  // }
+  }
 
   Requester.request(config, customError)
     .then(response => {
-      console.log("response.data",response.data)
-
-      response.data.result = Requester.validateResultNumber(response.data,['value']);
+      var resultData = response.data.data[0].value;
+      response.data.result =resultData;
       callback(response.status, Requester.success(jobRunID, response))
     })
     .catch(error => {
