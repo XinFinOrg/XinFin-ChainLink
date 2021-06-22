@@ -28,9 +28,10 @@ Please see
 7) Go to Chainlink GUI 
    7a) Create a bridge to connect external adapter
    7b) Create a job spec with Oracle address - It will result JOB ID
-8) Copy this JOB_ID and feed this in  .env file in API_AccessRequest folder 
-9) Fund your chainlink node address(regular) with enough XDC & LINK token
-10) Trigger "Request.js" file to see the magic
+   7c) Copy this JOB_ID and feed this in  .env file in API_AccessRequest folder 
+8) Fund your chainlink node address(regular) with enough XDC & LINK token
+9) Execute VinterAPI_Adapter and keep listening for events 
+10)Trigger "Request.js" file to register the request
 
 Before configuring the Chainlink components, there needs to be an oracle contract on the Xinfin Network that emits events. This is needed for the EI(External Initiator) to trigger job runs on the Chainlink node. See the [API_AccessRequest](./API_AccessRequest) folder for code to interact with the Xinfin Network.
 
@@ -193,51 +194,20 @@ Make sure you fund your contract address with enough LINK token - This is key st
 
 ### 7) Create Bridge & Job Spec in Chainlink GUI
 
-#### 7a) Create a bridge
+#### 7a) Create a bridge to register the "External adapter"
 
 - Login chainlink UI using the email ID & Password which you have setup during chainlink node setup
 - Go to Bridge section
---- Give a name(user defined) for ex - cyrptoprice
---- Give a URL and it should be http://localhost:5000
+  - Give a name(user defined) for ex - cyrptoprice
+  - Give a URL and it should be http://localhost:5000
 
 once done, save this and you should be good.
 
-#### 7a) Create a bridge
+#### 7b) Create a Job ID using following job spec
 
 - Login chainlink UI using the email ID & Password which you have setup during chainlink node setup
-- Go to Bridge section
---- Give a name(user defined) for ex - cyrptoprice
---- Give a URL and it should be http://localhost:5000
-
-once done, save this and you should be good.
-
-### 4) Run SetfulfillmentPermission of your chainlink node address in Oracle 
-
-
-Two simple external adapters are provided in the [Xinfin_externalAdapter](./Xinfin_externalAdapter) folder. They are simple servers built using Express that receives a post API call from the Chainlink node and sends the information to the smart contract on Xinfin Network.
-
-It requires a `.env` file in the folder that contain:  
-For `API_externalAdapter`:
-
-```
-PRIVATE_KEY=<ACCOUNT PRIVATE KEY>
-```
-
-The private key is the private key to an address that allows the external adapter to send transactions to Xinfin Network.
-
-Don't forget to install packages with `yarn` and then start the servers with `yarn start`. The external servers will start on `http://localhost:5001` for the `API_externalAdapter`. Additionally, the bridges should be created using `http://172.17.0.1` to access the local network from the containerized Chainlink node or  `http://localhost` if it is baremetal execution.
-
-In order to connect the two external adapters, three bridges were used.
-
-| Bridge Name    | Endpoint                     | Functionality                          |
-| -------------- | ---------------------------- | -------------------------------------- |
-| `xdcSendTx`    | http://172.17.0.1:5001       | Sending transaction to Xinfin Network  |
-
-### Connecting Everything Together
-
-In order to create the necessary connections between the various components (Xinfin Network, Chainlink node, EI, EA, and Auth API), two job runs on the node need to be created. This can be done by accessing the node via the `localhost:6688` address and logging in.
-
-The first job spec is for connecting the external initiator and can be found [here](./jobSpecs/externalInitiator.json).
+- Go to Job section
+  - Click "New Job" and copy paste the following job spec
 
 ```
 {
@@ -245,20 +215,90 @@ The first job spec is for connecting the external initiator and can be found [he
     {
       "type": "external",
       "params": {
-        "name": "xdc",
+        "name": "xdcnew",
         "body": {
           "endpoint": "xinfin-testnet",
-          "addresses": ["0x8ac6bf0700ed41d1323a1f9c16d85d76f1196cdb"]
+          "addresses": ["0xac01be7848651fbc7a9f3e8b72f9d47a0f4ceb47"]
         }
       }
     }
   ],
   "tasks": [
-    {"type": "xdcSendTx"}
+    {
+      "type": "cryptoprice"
+    },
+    {
+      "type": "copy",
+        "params": {
+        "copyPath": [
+          "result"
+        ]
+      }
+    },
+    {
+      "type": "multiply"
+    },
+    {
+      "type": "ethuint256"
+    },
+    {
+       "type": "EthTx"
+    }
   ]
 }
 
-Gitbook Link - https://lokeshwaran-a82.gitbook.io/xinfin/step-by-step-guide-complete-flow-xinfin-network-+-chainlink-authenticated-api-data-execution
+```
 
+The initiators set the contract address that triggers the Chainlink node to initiate a specific job, while tasks defines the work pipeline for this job. Note that the parameter “address: 0xac01be7848651fbc7a9f3e8b72f9d47a0f4ceb47" indicates that the node will only listen to that address for the job ID, which should be updated with the deployed Oracle contract address properly.
 
-****** TESTING IN PROGRESS ***** Please see above link to get complete insight
+For example, the “tasks” define that the Chainlink node will first retrieve data from the external adapter "cryptoprice" (i.e., the Bridge will interact with the URL endpoint of external adapter to access the data in JSON format), copy the data field, multiply it by 100, and convert it into uint256 type.
+The new Job can be found in the Tab of “Jobs” as below. 
+
+once done, save this and you should be get a job ID in this format  --> 8cbc3e6ceed04d5b9a7591374325b640
+
+#### 7c) Copy this JOB_ID and feed this in  .env file in API_AccessRequest folder 
+
+This job id should be overriden in .env file. Everytime, you creates a new job, that has to be overriden in .env file. Since this job Id & Oracle is tightly coupled which bridge the pipeline.
+
+### 8) Fund your chainlink node address(regular) with enough XDC & LINK token
+
+Fund your chainlink node address (Regular) with enough XDC & LINK token. Once you transfer enough token and XDC, you will be able to see the balances in Chainlink GUI under Key Sections.
+
+### 9) Execute VinterAPI_Adapter and keep listening for events 
+
+External adapters are provided in the [VinterAPI_Adapter](./VinterAPI_Adapter) folder. They are simple servers built using Express that receives a post API call from the Chainlink node and sends the information to the smart contract on Xinfin Network.
+
+It requires a `.env` file in the folder that contain:  
+
+```
+API_KEY=APIkey of vinterapi.com
+```
+
+```
+cd VinterAPI_Adapter
+yarn
+yarn start
+```
+
+Don't forget to install packages with `yarn` and then start the servers with `yarn start`. The external servers will start on `http://localhost:5000`
+
+| Bridge Name    | Endpoint                     | Functionality                          |
+| -------------- | ---------------------------- | -------------------------------------- |
+| `cryptoprice`    | http://localhost:5000       | Sending transaction to Xinfin Network  |
+
+### 10) Trigger "Request.js" file to register the request
+
+Now it is time to trigger the request and register our requestPrice. Before you do so, please
+
+```
+cd API_AccessRequest
+yarn add "xdc3"
+yarn add "chainlink-test-helpers"
+yarn start
+node Request.js
+```
+
+Note: 
+- Make sure, you have proper values set in .env file in this folder. 
+
+Once the above step is successful, you will be able to see the job is triggered in Chianlink UI and task will be succesfully writing price on blockchain.
