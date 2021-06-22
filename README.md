@@ -1,10 +1,12 @@
-# Xinfin Network + Chainlink: Authenticated API Data pull
+# Xinfin Network + Chainlink: Authenticated API Data pull from Vinterapi.com
 
 Demonstrating how to connect Xinfin Network and Chainlink together, and thus bringing the world of oracles to Xinfin Network. This is a simple demonstration of how to use an [external initiator](https://github.com/smartcontractkit/chainlink/wiki/External-Initiators) (EI) and [external adapter](https://github.com/smartcontractkit/chainlink/wiki/External-Adapters) (EA) that allows for an external Authenticated API to pull the data and write on-chain through smart contract.
 
 There are two main implications:
 
 1. The connection of Chainlink to Xinfin Network allows for the growth of all types of oracles on Xinfin Network to power exchanges, other oracle needs, and bridge Web2 technology with Web3.
+
+2. Automating the process by including the CRON so that it updates the price value periodically
 
 ## Setup Steps
 
@@ -13,6 +15,19 @@ Generalized setup steps for the configuration of Chainlink components - more det
 Please see 
 [Chainlink](https://docs.chain.link/docs)
 [XinFin](https://howto.xinfin.org//) documentation if more details on configuration and setup are needed.
+
+### Steps to be done If you want to try this locally
+1) Setup Chainlink Node in local system
+2) Download and Setup Customized External Initiator in local system using this link(External Initiator)
+3) Download this repo in your local system
+4) Deploy LinkToken.sol in "Apothem" network
+5) Deploy Oracle.sol in "Apothem" network by overriding the Link contract address
+6) SetfulfillmentPermission of your chainlink node address in Oracle 
+7) Deploy XinfinVinterClient.sol in "Apothem" network
+8) Fund your "XinfinVinterClient" contract address with LINK token
+9) Go to Chainlink GUI and create a job spec with Oracle address - It will result JOB ID
+10) Copy this JOB_ID and feed this in  .env file in API_AccessRequest folder 
+11) Trigger "Request.js" file to see the magic
 
 Before configuring the Chainlink components, there needs to be an oracle contract on the Xinfin Network that emits events. This is needed for the EI(External Initiator) to trigger job runs on the Chainlink node. See the [API_AccessRequest](./API_AccessRequest) folder for code to interact with the Xinfin Network.
 
