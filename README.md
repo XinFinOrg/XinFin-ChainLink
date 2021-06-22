@@ -31,9 +31,9 @@ Please see
    7c) Copy this JOB_ID and feed this in  .env file in API_AccessRequest folder 
 8) Fund your chainlink node address(regular) with enough XDC & LINK token
 9) Execute VinterAPI_Adapter and keep listening for events 
-10)Trigger "Request.js" file to register the request
+10) Trigger "Request.js" file to register the request
 
-Before configuring the Chainlink components, there needs to be an oracle contract on the Xinfin Network that emits events. This is needed for the EI(External Initiator) to trigger job runs on the Chainlink node. See the [API_AccessRequest](./API_AccessRequest) folder for code to interact with the Xinfin Network.
+Before configuring the Chainlink components, there needs to be an oracle contract on the Xinfin Network that emits events. This is needed for the EI(External Initiator) to trigger job runs on the Chainlink node.
 
 ### 1) Setup & Run Chainlink Node in local system
 
@@ -94,10 +94,11 @@ During setup, a node password and a username/password is required for setup. The
 External initiators observe a blockchain node endpoint and will trigger runs on the Chainlink node.  
 _Note: Prerequisite for Go to be installed. See [here](https://golang.org/doc/install) for instructions._
 
-Clone and build the [external initiator repository](https://github.com/smartcontractkit/external-initiator) 
+Clone and build the [external initiator repository](https://github.com/XinFinOrg/Xinfin-External-Initiator/tree/master) 
 
 ```
-git clone https://github.com/smartcontractkit/external-initiator
+git clone https://github.com/XinFinOrg/Xinfin-External-Initiator
+git checkout master
 cd external-initiator
 go install
 ```
