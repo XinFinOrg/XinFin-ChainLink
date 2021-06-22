@@ -126,7 +126,7 @@ The external initiator can be started up using:
 
 ### 3) Deploy Contracts in Apothem Network
 
-## 3a) Deploy LinkToken.sol in "Apothem" network
+#### 3a) Deploy LinkToken.sol in "Apothem" network
 
 do download this repo and do the following
 
@@ -135,13 +135,36 @@ git clone https://github.com/XinFinOrg/XinFin-ChainLink.git
 cd Xinfin-Chainlink
 ```
 
-copy LinkToken.sol and do the deployment using remix IDE - https://remix.xinfin.network/
+copy LinkToken.sol from contracts folder and do the deployment using remix IDE - https://remix.xinfin.network/
 
 Make sure, you have "Injected web3" and xinpay wallet is connected. Once deployed, copy the contract address - > this is going to be the key address for all the steps. This address has to be overriden in .env before you run chainlink node using -> LINK_CONTRACT_ADDRESS paramater
 
+#### 3b) Deploy Oracle.sol in "Apothem" network by overriding the Link contract address
 
+copy Oracle.sol from contracts folder and do the deployment using remix IDE - https://remix.xinfin.network/
 
+Make sure, you have "Injected web3" and xinpay wallet is connected. Deploy Oracle by overriding LINK Token address which you got from step 3a) -- Once deployed, copy the contract address - > this is going to be the oracle address which will be overriden while you deploy Vinter contract - so keep it safe
 
+Note: Create one .env file under "API_AccessRequest folder" and keep tracking these 
+
+```
+PRIVATE_KEY=
+ACCOUNT_ADDRESS=
+LINK_TOKEN=
+ORACLE_CONTRACT=
+REQUESTOR_CONTRACT=
+JOB_ID=
+
+```
+
+| Key                        | Description                                                                                | Example                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| `PRIVATE_KEY`              | Private key of your xinpay wallet                                                      | `asdfasdfasd23sdfdsfasdfsadfasdfasdfasdfasdfasdfasdfds`                                                             |
+| `ACCOUNT_ADDRESS`           | you can get this from your Chainlin GUI - Go to Keys section and find regular address  | `0x7890A8F19D5ec056729e1447fd334990d5fA9ceb`                         |
+| `LINK_TOKEN`          | Link token contract address that you received from step #3a                                   | `0x0b3a3769109f17af9d3b2fa52832b50d600a9b1a`                                            |
+| `ORACLE_CONTRACT`          | Oracle Contract addrss that you received from step #3b         | `0xac01be7848651fbc7a9f3e8b72f9d47a0f4ceb47`                                 |
+| `REQUESTOR_CONTRACT`             | Vinter API contract address that you received from step #4a        | `0x045687b5eda47d9c38d2ce79d35f3179b43f2f37` |
+| `JOB_ID`          | Job ID that you received from step #8a | `0b7d4a293bff4baf8de852bfa1f1f78a`                                 |
 
 
 ## 3) Deploy Contracts in Apothem Network
