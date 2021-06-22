@@ -26,10 +26,11 @@ Please see
 5) Deploy XinfinVinterClient.sol in "Apothem" network
 6) Fund your "XinfinVinterClient" contract address with LINK token
 7) Go to Chainlink GUI 
-   9a) Create a bridge to connect external adapter
-   9b) Create a job spec with Oracle address - It will result JOB ID
+   7a) Create a bridge to connect external adapter
+   7b) Create a job spec with Oracle address - It will result JOB ID
 8) Copy this JOB_ID and feed this in  .env file in API_AccessRequest folder 
-9) Trigger "Request.js" file to see the magic
+9) Fund your chainlink node address(regular) with enough XDC & LINK token
+10) Trigger "Request.js" file to see the magic
 
 Before configuring the Chainlink components, there needs to be an oracle contract on the Xinfin Network that emits events. This is needed for the EI(External Initiator) to trigger job runs on the Chainlink node. See the [API_AccessRequest](./API_AccessRequest) folder for code to interact with the Xinfin Network.
 
@@ -163,11 +164,55 @@ JOB_ID=
 | `ACCOUNT_ADDRESS`           | you can get this from your Chainlin GUI - Go to Keys section and find regular address  | `0x7890A8F19D5ec056729e1447fd334990d5fA9ceb`                         |
 | `LINK_TOKEN`          | Link token contract address that you received from step #3a                                   | `0x0b3a3769109f17af9d3b2fa52832b50d600a9b1a`                                            |
 | `ORACLE_CONTRACT`          | Oracle Contract addrss that you received from step #3b         | `0xac01be7848651fbc7a9f3e8b72f9d47a0f4ceb47`                                 |
-| `REQUESTOR_CONTRACT`             | Vinter API contract address that you received from step #4a        | `0x045687b5eda47d9c38d2ce79d35f3179b43f2f37` |
+| `REQUESTOR_CONTRACT`             | Vinter API contract address that you received from step #5a        | `0x045687b5eda47d9c38d2ce79d35f3179b43f2f37` |
 | `JOB_ID`          | Job ID that you received from step #8a | `0b7d4a293bff4baf8de852bfa1f1f78a`                                 |
 
 
-## 3) Deploy Contracts in Apothem Network
+### 4) Run SetfulfillmentPermission of your chainlink node address in Oracle 
+
+Copy the "Account_address" from chainlink GUi under Key sections, you will find "regular" account. This address basically talks to Oracle contract. To enable this, we need to run "Oracle.js" from API_AccessRequest folder
+
+- Make sure that you have overriden Oracle contract address & Account Address in .env file
+
+```
+cd API_AccessRequest
+node Oracle.js
+```
+
+This step, will perform "setfulfilmentpermission" method and set the flag to "True", after this step your chainlink node can connect with Oracle and do proper handshaking.
+
+### 5) Deploy XinfinVinterClient.sol in "Apothem" network
+
+copy XinfinVinterClient.sol from contracts folder and do the deployment using remix IDE - https://remix.xinfin.network/
+
+Make sure, you have "Injected web3" and xinpay wallet is connected. Deploy Contract by overriding LINK Token address which you got from step 3a) -- Once deployed, copy the contract address - > this is going to be the requester address which will be overriden in .env file under -> REQUESTOR_CONTRACT paramaeter
+
+### 6) Fund your "XinfinVinterClient" contract address with LINK token
+
+Make sure you fund your contract address with enough LINK token - This is key step, without which you will not be able to trigger requestPrice function - it will throw Json-RPC error. So keep this in mind and dont skip it.
+
+### 7) Create Bridge & Job Spec in Chainlink GUI
+
+#### 7a) Create a bridge
+
+- Login chainlink UI using the email ID & Password which you have setup during chainlink node setup
+- Go to Bridge section
+--- Give a name(user defined) for ex - cyrptoprice
+--- Give a URL and it should be http://localhost:5000
+
+once done, save this and you should be good.
+
+#### 7a) Create a bridge
+
+- Login chainlink UI using the email ID & Password which you have setup during chainlink node setup
+- Go to Bridge section
+--- Give a name(user defined) for ex - cyrptoprice
+--- Give a URL and it should be http://localhost:5000
+
+once done, save this and you should be good.
+
+### 4) Run SetfulfillmentPermission of your chainlink node address in Oracle 
+
 
 Two simple external adapters are provided in the [Xinfin_externalAdapter](./Xinfin_externalAdapter) folder. They are simple servers built using Express that receives a post API call from the Chainlink node and sends the information to the smart contract on Xinfin Network.
 
