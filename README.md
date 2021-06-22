@@ -17,59 +17,87 @@ Please see
 [XinFin](https://howto.xinfin.org//) documentation if more details on configuration and setup are needed.
 
 ### Steps to be done If you want to try this locally
-1) Setup Chainlink Node in local system
+1) Setup & Run Chainlink Node in local system
 2) Download and Setup Customized External Initiator in local system using this link(External Initiator)
-3) Download this repo in your local system
-4) Deploy LinkToken.sol in "Apothem" network
-5) Deploy Oracle.sol in "Apothem" network by overriding the Link contract address
-6) SetfulfillmentPermission of your chainlink node address in Oracle 
-7) Deploy XinfinVinterClient.sol in "Apothem" network
-8) Fund your "XinfinVinterClient" contract address with LINK token
-9) Go to Chainlink GUI and create a job spec with Oracle address - It will result JOB ID
-10) Copy this JOB_ID and feed this in  .env file in API_AccessRequest folder 
-11) Trigger "Request.js" file to see the magic
+3) Deploy Contracts in Apothem Network
+  3a) Deploy LinkToken.sol in "Apothem" network
+  3b) Deploy Oracle.sol in "Apothem" network by overriding the Link contract address
+4) Run SetfulfillmentPermission of your chainlink node address in Oracle 
+5) Deploy XinfinVinterClient.sol in "Apothem" network
+6) Fund your "XinfinVinterClient" contract address with LINK token
+7) Go to Chainlink GUI 
+   9a) Create a bridge to connect external adapter
+   9b) Create a job spec with Oracle address - It will result JOB ID
+8) Copy this JOB_ID and feed this in  .env file in API_AccessRequest folder 
+9) Trigger "Request.js" file to see the magic
 
 Before configuring the Chainlink components, there needs to be an oracle contract on the Xinfin Network that emits events. This is needed for the EI(External Initiator) to trigger job runs on the Chainlink node. See the [API_AccessRequest](./API_AccessRequest) folder for code to interact with the Xinfin Network.
 
-### Running a Chainlink Node
+### 1) Setup & Run Chainlink Node in local system
 
-This step involves running a Chainlink node from a docker container as specified in the [developer documentation](https://docs.chain.link/docs/running-a-chainlink-node). Below is a sample `.env` file that should be included in the `\.chainlink*` folder.  
-_Note: An ETH client URL is not required_
+This step involves running a Chainlink node baremetal as specified in the [developer documentation](https://docs.chain.link/docs/running-a-chainlink-node). Below is a sample `.env` file that should be included in the `\.chainlink*` folder.  
 
 ```
-ROOT=/chainlink
-LOG_LEVEL=debug
-ETH_CHAIN_ID=3
-MIN_OUTGOING_CONFIRMATIONS=2
-LINK_CONTRACT_ADDRESS=0x20fe562d797a42dcb3399062ae9546cd06f63280
-CHAINLINK_TLS_PORT=0
-SECURE_COOKIES=false
-ALLOW_ORIGINS=*
-DATABASE_TIMEOUT=0
-DATABASE_URL=postgresql://$USERNAME:$PASSWORD@$SERVER:$PORT/$DATABASE
-ETH_DISABLED=true
-FEATURE_EXTERNAL_INITIATORS=true
-CHAINLINK_DEV=true
+export ETH_CHAIN_ID=51
+export ETH_URL=wss://ws.apothem.network
+export MIN_OUTGOING_CONFIRMATIONS=2
+export LINK_CONTRACT_ADDRESS=0x0b3a3769109f17af9d3b2fa52832b50d600a9b1a
+export CHAINLINK_TLS_PORT=0
+export SECURE_COOKIES=false
+export ALLOW_ORIGINS=*
+export DATABASE_TIMEOUT=0
+export FEATURE_EXTERNAL_INITIATORS=true
+export CHAINLINK_DEV=true
+export DATABASE_URL=postgresql://127.0.0.1:5432/chainlink_db_5?sslmode=disable
 ```
 
 Then the following command is run (_note: may be different depending on folder configuration_)
 
+
 ```
-cd ~/.chainlink-ropsten && docker run -p 6688:6688 -v ~/.chainlink-ropsten:/chainlink -it --env-file=.env smartcontract/chainlink local n
+cd ~/.chainlink
+make install ( first time or whenever you make some changes) ==> this step will take some time so pls be patient
+chainlink node start
+```
+Note: Before you run "chainlink node start" - apply this line of changes in following file
+
+core -> services -> bulletprooftxmanager -> types.go after line number 200 
+
+Override this If block 
+```
+	  if err := json.Unmarshal(msg.Result[:], &rawEvents); err != nil {
+			logger.Error("unmarshal:", err)
+			return nil, false
+		}
+```
+with
+
+```
+	actualValue := string(input[:])
+	modifiedValue := strings.ReplaceAll(actualValue,"xdc","0x")
+	toSendData := []byte(modifiedValue)
+
+	if err := json.Unmarshal(toSendData, &dec); err != nil {
+		return errors.Wrap(err, "could not unmarshal receipt")
+	}
 ```
 
-During setup, a node password and a username/password is required for setup. The node password is used each time the node is started. The username/password is used for accessing the node UI at `http://localhost:6688` and for other parts of setup.
+Basically, we have to replace xdc prefix value to acceptable 0x value in address field.
 
-### Setting Up an External Initiator
+
+During setup, a node password and a username/password is required for setup. The node password is used each time the node is started. The username/password is used for accessing the node UI at `http://localhost:6688` and for other parts of setup. So do not forget this password, if you forgot, then you hve to redo the chainlink node setup from beginning.
+
+### 2) Download and Setup Customized External Initiator in local system using this link(External Initiator)
 
 External initiators observe a blockchain node endpoint and will trigger runs on the Chainlink node.  
 _Note: Prerequisite for Go to be installed. See [here](https://golang.org/doc/install) for instructions._
 
 Clone and build the [external initiator repository](https://github.com/smartcontractkit/external-initiator) 
+
 ```
 git clone https://github.com/smartcontractkit/external-initiator
 cd external-initiator
-go build
+go install
 ```
 
 Create a `.env` file in the `external-initiator` folder with the following contents:
@@ -87,19 +115,36 @@ _Note: the database URL should be separate from the Chainlink node database_
 
 The 4 keys in the `external-initiator/.env` file are generated by the Chainlink node with the following process. [Link](https://docs.chain.link/docs/miscellaneous) to more Chainlink/Docker documentation.
 
-1. Use `docker ps` and obtain the container ID for the Chainlink node. To access the command line within the container, use `docker exec -it <containerID> /bin/bash`.
-1. Once inside the container, log in using `chainlink admin login` and the username/password from when the container is created.
-1. To create the keys, `chainlink initiators create <NAME> <URL>`. Note that in this case the name is `xdc` and the url is `http://172.17.0.1:8080/jobs` to access the locally run external-initiator using the docker container gateway. (otherwise, they are on two different networks). The 4 keys are generated in the same order as listed above.
+1. Once you run "Chainlink node start" and your chainlink is in running mode, then open a new terminal and type `chainlink admin login` and the username/password from when the container is created.
+1. To create the keys, `chainlink initiators create <NAME> <URL>`. Note that in this case the name is `xdc` and the url is `http://localhost:8080/jobs` to access the locally run external-initiator (otherwise, they are on two different networks). The 4 keys are generated in the same order as listed above.
 
 The external initiator can be started up using:
 
 ```
-./external-initiator "{\"name\":\"xinfin-testnet\",\"type\":\"ethererum\",\"url\":\"https://rpc.apothem.network\"}" --chainlinkurl "http://localhost:6688/"
+./external-initiator "{\"name\":\"xinfin-testnet\",\"type\":\"xinfin\",\"url\":\"https://rpc.apothem.network\"}" --chainlinkurl "http://localhost:6688/"
 ```
 
-Where the url can be changed to the respective endpoint. In this case, it is pointed at the public Xinfin Network testnet endpoint. For reliability purposes, do not use this in production; it is much more reliable to connect to a non-public endpoint.
+### 3) Deploy Contracts in Apothem Network
 
-### Creating a Bridge for an External Adapter
+## 3a) Deploy LinkToken.sol in "Apothem" network
+
+do download this repo and do the following
+
+```
+git clone https://github.com/XinFinOrg/XinFin-ChainLink.git
+cd Xinfin-Chainlink
+```
+
+copy LinkToken.sol and do the deployment using remix IDE - https://remix.xinfin.network/
+
+Make sure, you have "Injected web3" and xinpay wallet is connected. Once deployed, copy the contract address - > this is going to be the key address for all the steps. This address has to be overriden in .env before you run chainlink node using -> LINK_CONTRACT_ADDRESS paramater
+
+
+
+
+
+
+## 3) Deploy Contracts in Apothem Network
 
 Two simple external adapters are provided in the [Xinfin_externalAdapter](./Xinfin_externalAdapter) folder. They are simple servers built using Express that receives a post API call from the Chainlink node and sends the information to the smart contract on Xinfin Network.
 
