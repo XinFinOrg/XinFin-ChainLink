@@ -20,15 +20,15 @@ Please see
 1) Setup & Run Chainlink Node in local system
 2) Download and Setup Customized External Initiator in local system using this link(External Initiator)
 3) Deploy Contracts in Apothem Network
-  3a) Deploy LinkToken.sol in "Apothem" network
-  3b) Deploy Oracle.sol in "Apothem" network by overriding the Link contract address
+3a) Deploy LinkToken.sol in "Apothem" network
+3b) Deploy Oracle.sol in "Apothem" network by overriding the Link contract address
 4) Run SetfulfillmentPermission of your chainlink node address in Oracle 
 5) Deploy XinfinVinterClient.sol in "Apothem" network
 6) Fund your "XinfinVinterClient" contract address with LINK token
 7) Go to Chainlink GUI 
-   7a) Create a bridge to connect external adapter
-   7b) Create a job spec with Oracle address - It will result JOB ID
-   7c) Copy this JOB_ID and feed this in  .env file in API_AccessRequest folder 
+7a) Create a bridge to connect external adapter
+7b) Create a job spec with Oracle address - It will result JOB ID
+7c) Copy this JOB_ID and feed this in  .env file in API_AccessRequest folder 
 8) Fund your chainlink node address(regular) with enough XDC & LINK token
 9) Execute VinterAPI_Adapter and keep listening for events 
 10) Trigger "Request.js" file to register the request
