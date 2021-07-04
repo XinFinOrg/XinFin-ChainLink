@@ -16,7 +16,7 @@ const createRequest = (input, callback) => {
   const jobRunID = validator.validated.id
   const endpoint = validator.validated.data.endpoint 
   const url      = `https://www.vinterapi.com/api/v2/${endpoint}`
-  const symbol   = "xdc-usd-p-d"
+  const symbol   = validator.validated.data.symbol 
 
   const params = {
     symbol

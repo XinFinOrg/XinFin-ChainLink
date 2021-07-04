@@ -8,6 +8,7 @@ const port = process.env.EA_PORT || 5000
 app.use(bodyParser.json())
 
 app.post('/', (req, res) => {
+  console.log("request value is",req.body)
   createRequest(req.body, (status, result) => {
     console.log('Result: ', result)
     res.status(status).json(result)
