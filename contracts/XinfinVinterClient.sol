@@ -1,7 +1,7 @@
 pragma solidity 0.4.24;
 
-import "https://github.com/smartcontractkit/chainlink/evm-contracts/src/v0.4/ChainlinkClient.sol";
-import "https://github.com/smartcontractkit/chainlink/evm-contracts/src/v0.4/vendor/Ownable.sol";
+import "@chainlink/contracts/src/v0.4/ChainlinkClient.sol";
+import "@chainlink/contracts/src/v0.4/vendor/Ownable.sol";
 
 contract XinfinVinterClient is ChainlinkClient, Ownable {
     
